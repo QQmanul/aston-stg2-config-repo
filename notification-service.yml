@@ -2,21 +2,6 @@ server:
   port: 8081
 
 spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/mydb
-    username: admin
-    password: admin123
-
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-
   kafka:
     bootstrap-servers: localhost:9092
 
