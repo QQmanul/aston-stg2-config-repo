@@ -2,19 +2,21 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: api-gateway
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
       routes:
-
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/v2/users/**
-
-        - id: user-notification
-          uri: lb://USER-NOTIFICATION
-          predicates:
-            - Path=/user-notification/**
+            - Path=/api/users/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
 eureka:
   client:
     service-url:
