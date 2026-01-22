@@ -1,31 +1,65 @@
 server:
-  port: 8080 # Порт API Gateway
+  port: 8080
 
 spring:
+  application:
+    name: api-gateway
+
   cloud:
     gateway:
+      # discovery.locator включён → gateway сам находит сервисы в Eureka по имени
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true   # если имена сервисов в lowercase
+
       routes:
-        - id: USER-SERVICE
-          uri: lb://user-service
+        - id: user-service
+          uri: lb://user-service        # lb:// → через Eureka + load balancing
           predicates:
             - Path=/users/**
-        - id: order-service
+
+        - id: notification-service
           uri: lb://NOTIFICATION-SERVICE
           predicates:
             - Path=/orders/**
+
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
     fetch-registry: true
     register-with-eureka: true
+  instance:
+    prefer-ip-address: true           # полезно в docker/local
 
 management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: "*"                  # все эндпоинты actuator
+      base-path: /actuator            # по умолчанию, но можно изменить
+
   endpoint:
+    health:
+      show-details: always
     gateway:
       enabled: true
-      access: read-only
+      access: read-only             # только просмотр роутов (без refresh/create/delete)
+    env:
+      enabled: true
+    mappings:
+      enabled: true
+    metrics:
+      enabled: true
+
+  # Полезно для отладки
+  info:
+    env:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: INFO
+    reactor.netty: INFO
