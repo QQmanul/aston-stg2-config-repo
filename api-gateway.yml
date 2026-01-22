@@ -25,3 +25,7 @@ management:
     web:
       exposure:
         include: "*"
+  endpoint:
+    gateway:
+      enabled: true
+      access: read-only
