@@ -1,61 +1,22 @@
 server:
-  port: 8080
+  port: 8080 # Порт API Gateway
 
 spring:
-  application:
-    name: api-gateway
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
       routes:
-        - id: httpbin-test
-          uri: https://httpbin.org
+        - id: USER-SERVICE
+          uri: lb://user-service
           predicates:
-            - Path=/test/**
-          filters:
-            - SetPath=/get
-
-        - id: user-service
-          uri: lb://USER-SERVICE
+            - Path=/users/**
+        - id: order-service
+          uri: lb://NOTIFICATION-SERVICE
           predicates:
-            - Path=/api/users/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-
-        - id: user-notification
-          uri: lb://USER-NOTIFICATION
-          predicates:
-            - Path=/notification/**
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,gateway,routes,info
-      base-path: /actuator
-  endpoint:
-    gateway:
-      enabled: true
-    health:
-      enabled: true
-    routes:
-      enabled: true
-
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web.reactive: DEBUG
-    reactor.netty: DEBUG
+            - Path=/orders/**
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://localhost:8761/eureka/ # Ссылка на ваш Eureka Server
     fetch-registry: true
     register-with-eureka: true
-  instance:
-    hostname: localhost
-    prefer-ip-address: false
