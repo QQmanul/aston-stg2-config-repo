@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=2
+
+        - id: user-notification
+          uri: lb://USER-NOTIFICATION
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=2
