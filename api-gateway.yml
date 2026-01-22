@@ -1,65 +1,32 @@
 server:
   port: 8080
-
 spring:
   application:
-    name: api-gateway
-
+    name: gateway-service
   cloud:
     gateway:
-      # discovery.locator включён → gateway сам находит сервисы в Eureka по имени
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true   # если имена сервисов в lowercase
-
       routes:
         - id: user-service
-          uri: lb://user-service        # lb:// → через Eureka + load balancing
+          uri: lb://user-service
           predicates:
-            - Path=/users/**
+            - Path=/api/users/**
+          filters:
+            - RewritePath=/api/users/(?<segment>.*), /$\{segment}
+            - name: CircuitBreaker
+              args:
+                name: user-cb
+                fallbackUri: forward:/fallback/users
 
-        - id: notification-service
-          uri: lb://NOTIFICATION-SERVICE
-          predicates:
-            - Path=/orders/**
+resilience4j.circuitbreaker:
+  instances:
+    notify-cb:
+      sliding-window-size: 10
+      failure-rate-threshold: 50
+      wait-duration-in-open-state: 10s
+      permitted-number-of-calls-in-half-open-state: 3
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
-    fetch-registry: true
-    register-with-eureka: true
-  instance:
-    prefer-ip-address: true           # полезно в docker/local
+      defaultZone: http://localhost:8761/eureka
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"                  # все эндпоинты actuator
-      base-path: /actuator            # по умолчанию, но можно изменить
-
-  endpoint:
-    health:
-      show-details: always
-    gateway:
-      enabled: true
-      access: read-only             # только просмотр роутов (без refresh/create/delete)
-    env:
-      enabled: true
-    mappings:
-      enabled: true
-    metrics:
-      enabled: true
-
-  # Полезно для отладки
-  info:
-    env:
-      enabled: true
-
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web: INFO
-    reactor.netty: INFO
