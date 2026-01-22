@@ -17,6 +17,17 @@ spring:
             - Path=/api/users/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "*"
+        base-path: /actuator
+    endpoint:
+      gateway:
+        enabled: true
+      health:
+        enabled: true
 eureka:
   client:
     service-url:
