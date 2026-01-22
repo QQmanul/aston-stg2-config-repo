@@ -9,13 +9,9 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/api/users/**
-          filters:
-            - StripPrefix=2
+            - Path=/v2/users/**
 
         - id: user-notification
           uri: lb://USER-NOTIFICATION
           predicates:
-            - Path=/api/notifications/**
-          filters:
-            - StripPrefix=2
+            - Path=/user-notification/**
